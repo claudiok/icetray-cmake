@@ -17,10 +17,11 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>
 #  
-TOOLDEF (cfitsio
-  include
-  fitsio.h
-  lib
-  NONE
-  cfitsio
-  )
+colormsg("")
+colormsg(HICYAN "cfitsio")
+find_package(CFITSIO QUIET)
+
+if(CFITSIO_FOUND)
+  found_ok("fitsio.h found at ${CFITSIO_INCLUDE_DIRS}")
+  found_ok("${CFITSIO_LIBRARIES}")
+endif(CFITSIO_FOUND)

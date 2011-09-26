@@ -33,23 +33,15 @@ if(PRINTF_LOGGING)
     )
 else(PRINTF_LOGGING)  # just use log4cplus
 
-  if(NOT LOG4CPLUS_VERSION)
-    if(IS_DIRECTORY ${I3_PORTS}/include/log4cplus-1.0.4)
-      set(LOG4CPLUS_VERSION "-1.0.4")
-    elseif(IS_DIRECTORY ${I3_PORTS}/include/log4cplus-1.0.2)
-      set(LOG4CPLUS_VERSION "-1.0.2")
-    else(IS_DIRECTORY ${I3_PORTS}/include/log4cplus-1.0.4)
-      set(LOG4CPLUS_VERSION "")
-    endif(IS_DIRECTORY ${I3_PORTS}/include/log4cplus-1.0.4)
-  endif(NOT LOG4CPLUS_VERSION)
+colormsg("")
+colormsg(HICYAN "log4cplus")
+file(GLOB LOG4CPLUS_SEARCH_DIRS "${I3_PORTS}/*/log4cplus-1.0.4" "${I3_PORTS}/*/log4cplus-1.0.2")
+find_package(Log4Cplus QUIET)
 
-  tooldef (log4cplus
-      include/log4cplus${LOG4CPLUS_VERSION}
-      log4cplus/logger.h
-      lib/log4cplus${LOG4CPLUS_VERSION}
-      NONE
-      log4cplus
-      )
+if(LOG4CPLUS_FOUND)
+  found_ok("log4cplus/logger.h found at ${LOG4CPLUS_INCLUDE_DIRS}")
+  found_ok("${LOG4CPLUS_LIBRARIES}")
+endif(LOG4CPLUS_FOUND)
 
 endif(PRINTF_LOGGING)
 
