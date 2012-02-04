@@ -372,7 +372,7 @@ endif(CCACHE_PROGRAM)
 #
 #  gfilt
 #
-if (USE_CCACHE)
+if (USE_CCACHE OR CMAKE_COMPILER_IS_CLANG)
   option(USE_GFILT "Use gfilt STL error decryptor" OFF)
 else()
   option(USE_GFILT "Use gfilt STL error decryptor" ON)
@@ -439,6 +439,15 @@ if(NOT METAPROJECT_CONFIGURED)
   set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O${RELOPTLEVEL} -Wno-unused-variable -g -DNDEBUG -DI3_OPTIMIZE")
   set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO}" CACHE STRING
     "Flags used by compiler during release builds" FORCE)
+
+  #
+  # stop binutils stupidity
+  #
+  if(NOT APPLE)
+    set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,--no-as-needed" CACHE STRING "Flags used by the linker" FORCE)
+    set(CMAKE_MODULE_LINKER_FLAGS "${CMAKE_MODULE_LINKER_FLAGS} -Wl,--no-as-needed" CACHE STRING "Flags used by the linker" FORCE)
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--no-as-needed" CACHE STRING "Flags used by the linker" FORCE)
+  endif(NOT APPLE)
 
   set(METAPROJECT_CONFIGURED TRUE CACHE INTERNAL "Metaproject configured")
 endif(NOT METAPROJECT_CONFIGURED)
