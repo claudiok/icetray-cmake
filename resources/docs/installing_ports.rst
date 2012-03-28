@@ -9,7 +9,7 @@ your toolset (often referred to as I3_PORTS.
 There is a single "meta-package" that collects all needed tools into a
 single, one-stop-shopping experience.  The current toolset is::
 
-   i3-tools-v4
+   i3-tools-v3
 
 
 Quick start for the impatient
@@ -186,7 +186,7 @@ Update your tool list from the server::
 
 Now update your tool installs (upgrade the tool meta-package)::
 
-  ./bin/port -vd upgrade i3-tools-v4  
+  ./bin/port -vd upgrade i3-tools-v2  
 
 If you know that there is a specific package you want to force a rebuilt of, you can::
 

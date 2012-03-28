@@ -175,19 +175,12 @@ macro(i3_add_library THIS_LIB_NAME)
       COMMAND mkdir -p ${LIBRARY_OUTPUT_PATH}
       )
 
-    # Disabled all special linker flags for APPLE:
-    #  - single_module: this is the default anyway
-    #  - undefined dynamic_lookup: it seems not to hurt letting the
-    #      linker throw an error for undefined symbols.
-    #  - flat_namespace: not using the two-level namespace (library+symbol name)
-    #      seems to introduce bugs in exception handling with boost::python.
-    #
-    #if(APPLE)
-    #  set_target_properties(${THIS_LIB_NAME}
-    #  PROPERTIES
-    #    LINK_FLAGS "-single_module -undefined dynamic_lookup -flat_namespace"
-    #    )
-    #endif(APPLE)
+    if(APPLE)
+      set_target_properties(${THIS_LIB_NAME}
+	PROPERTIES
+	LINK_FLAGS "-single_module -undefined dynamic_lookup -flat_namespace"
+	)
+    endif(APPLE)
 
     if(NOT ${THIS_LIB_NAME}_ARGS_WITHOUT_I3_HEADERS)
       set_target_properties(${THIS_LIB_NAME}
@@ -280,6 +273,8 @@ macro(i3_add_library THIS_LIB_NAME)
 	)
 
     endif(DPKG_INSTALL_PREFIX)
+
+    boost_post_results(${PROJECT_NAME} ${THIS_LIB_NAME} build ${CMAKE_CURRENT_BINARY_DIR})
 
   endif(BUILD_${I3_PROJECT})
 endmacro(i3_add_library)
@@ -406,6 +401,8 @@ macro(i3_executable THIS_EXECUTABLE_NAME)
     add_executable(${${PROJECT_NAME}_${THIS_EXECUTABLE_NAME}_TARGET_NAME}
       ${${PROJECT_NAME}_${THIS_EXECUTABLE_NAME}_SOURCES})
 
+    boost_post_results(${PROJECT_NAME} ${${PROJECT_NAME}_${THIS_EXECUTABLE_NAME}_TARGET_NAME} build ${CMAKE_CURRENT_BINARY_DIR})
+
     if(${PROJECT_NAME}_${THIS_EXECUTABLE_NAME}_WITHOUT_I3_HEADERS)
       message(${PROJECT_NAME}_${THIS_EXECUTABLE_NAME}_WITHOUT_I3_HEADERS)
       set(THIS_I3H_FLAGS "")
@@ -480,6 +477,8 @@ macro(i3_test_executable THIS_EXECUTABLE_NAME)
 	LINK_FLAGS "-bind_at_load -multiply_defined suppress"
 	)
     endif(APPLE)
+
+    boost_post_results(${PROJECT_NAME} ${PROJECT_NAME}-${THIS_EXECUTABLE_NAME} test ${CMAKE_CURRENT_BINARY_DIR})
 
     use_projects(${PROJECT_NAME}-${THIS_EXECUTABLE_NAME}
       PROJECTS ${${PROJECT_NAME}_${THIS_EXECUTABLE_NAME}_USE_PROJECTS})
@@ -585,17 +584,12 @@ macro(i3_add_pybindings MODULENAME)
 
     colormsg(GREEN "+-- ${MODULENAME}-pybindings")
 
-    # Disabled special linker flags for APPLE:
-    #  - undefined dynamic_lookup: it seems not to hurt letting the
-    #      linker throw an error for undefined symbols.
-    #  - flat_namespace: not using the two-level namespace (library+symbol name)
-    #      seems to introduce bugs in exception handling with boost::python.
     if(APPLE)
       set_target_properties(${MODULENAME}-pybindings
-        PROPERTIES
-        LINK_FLAGS "-bundle"
-        #used to be here: -flat_namespace -undefined dynamic_lookup -multiply_defined suppress
-        )
+	PROPERTIES
+	LINK_FLAGS "-bundle -flat_namespace -undefined dynamic_lookup"
+	#used to be here: -multiply_defined suppress
+	)
     endif(APPLE)
   endif ()
 endmacro(i3_add_pybindings)
