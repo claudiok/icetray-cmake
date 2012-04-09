@@ -162,7 +162,7 @@ macro(i3_add_library THIS_LIB_NAME)
     add_library(${THIS_LIB_NAME} ${ARGS} ${${THIS_LIB_NAME}_ARGS_SOURCES})
     add_dependencies(${THIS_LIB_NAME} env-check)
 
-    add_dependencies(test ${THIS_LIB_NAME})
+    add_dependencies(i3test ${THIS_LIB_NAME})
 
 
     set_target_properties(${THIS_LIB_NAME}
@@ -408,7 +408,7 @@ macro(i3_executable THIS_EXECUTABLE_NAME)
 
     add_dependencies(${${PROJECT_NAME}_${THIS_EXECUTABLE_NAME}_TARGET_NAME} env-check)
 
-    add_dependencies(test ${${PROJECT_NAME}_${THIS_EXECUTABLE_NAME}_TARGET_NAME})
+    add_dependencies(i3test ${${PROJECT_NAME}_${THIS_EXECUTABLE_NAME}_TARGET_NAME})
 
     use_projects(${${PROJECT_NAME}_${THIS_EXECUTABLE_NAME}_TARGET_NAME}
       PROJECTS ${${PROJECT_NAME}_${THIS_EXECUTABLE_NAME}_USE_PROJECTS})
@@ -446,6 +446,7 @@ endmacro(i3_executable THIS_EXECUTABLE_NAME)
 
 macro(i3_test_executable THIS_EXECUTABLE_NAME)
   if (BUILD_${I3_PROJECT})
+    enable_testing()
 
     parse_arguments(${PROJECT_NAME}_${THIS_EXECUTABLE_NAME}
       "USE_TOOLS;USE_PROJECTS;LINK_LIBRARIES"
@@ -512,6 +513,8 @@ macro(i3_test_executable THIS_EXECUTABLE_NAME)
 	    )
 
 	  file(APPEND ${THIS_TEST_UNIT_LIST} "${testable_file}/${unittest} ${THIS_TEST_PREFIX_ARGS} ${CMAKE_BINARY_DIR}/env-shell.sh ${CMAKE_BINARY_DIR}/bin/${PROJECT_NAME}-${THIS_EXECUTABLE_NAME} -s ${testable_file}/${unittest}\n")
+	  add_test(${PROJECT_NAME}::${testable_file}/${unittest}
+	           ${PROJECT_NAME}-test -s ${testable_file}/${unittest})
 
 	endforeach(unittest ${UNITTESTS})
       endif(NOT "${testable_file}" STREQUAL "")
@@ -611,6 +614,9 @@ macro(i3_test_scripts)
       )
 
     file(APPEND ${THIS_TEST_SCRIPT_LIST} "${this_script} time ${THIS_TEST_PREFIX_ARGS} ${CMAKE_BINARY_DIR}/env-shell.sh ${script}\n")
+    get_filename_component(script_basename ${script} NAME)
+    add_test(${PROJECT_NAME}::${script_basename}
+             ${script})
 
   endforeach(script ${${PROJECT_NAME}_SCRIPTS_ALPHABETICAL})
 

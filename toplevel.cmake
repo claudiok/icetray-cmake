@@ -83,7 +83,7 @@ include(config)
 include(tools)
 include(project)
 
-add_custom_target(test
+add_custom_target(i3test
   COMMAND ${CMAKE_BINARY_DIR}/env-shell.sh ${EXECUTABLE_OUTPUT_PATH}/runtests.py
   COMMENT "
 >>>
@@ -92,7 +92,7 @@ add_custom_target(test
 >>>
 ")
 add_custom_target(test-bins)
-add_dependencies(test test-bins)
+add_dependencies(i3test test-bins)
 
 add_custom_target(bottest
   COMMAND ln -sf ${EXECUTABLE_OUTPUT_PATH}/runtests.py ${EXECUTABLE_OUTPUT_PATH}/bottest.py
@@ -378,3 +378,6 @@ file(DOWNLOAD
   TIMEOUT 0.5
   )
 file(REMOVE ${CMAKE_BINARY_DIR}/.tag)
+
+### ctest testing
+enable_testing()
