@@ -447,6 +447,9 @@ endmacro(i3_executable THIS_EXECUTABLE_NAME)
 macro(i3_test_executable THIS_EXECUTABLE_NAME)
   if (BUILD_${I3_PROJECT})
     enable_testing()
+    add_test(NAME "${PROJECT_NAME}::unit_tests" #::${testable_file}/${unittest}"
+             WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
+             COMMAND ${PROJECT_NAME}-test -sa)
 
     parse_arguments(${PROJECT_NAME}_${THIS_EXECUTABLE_NAME}
       "USE_TOOLS;USE_PROJECTS;LINK_LIBRARIES"
@@ -513,8 +516,10 @@ macro(i3_test_executable THIS_EXECUTABLE_NAME)
 	    )
 
 	  file(APPEND ${THIS_TEST_UNIT_LIST} "${testable_file}/${unittest} ${THIS_TEST_PREFIX_ARGS} ${CMAKE_BINARY_DIR}/env-shell.sh ${CMAKE_BINARY_DIR}/bin/${PROJECT_NAME}-${THIS_EXECUTABLE_NAME} -s ${testable_file}/${unittest}\n")
-	  add_test(${PROJECT_NAME}::${testable_file}/${unittest}
-	           ${PROJECT_NAME}-test -s ${testable_file}/${unittest})
+#    # individual tests
+#	  add_test(NAME "${PROJECT_NAME}::${testable_file}/${unittest}"
+#	           WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
+#	           COMMAND ${PROJECT_NAME}-test -s ${testable_file}/${unittest})
 
 	endforeach(unittest ${UNITTESTS})
       endif(NOT "${testable_file}" STREQUAL "")
@@ -615,8 +620,9 @@ macro(i3_test_scripts)
 
     file(APPEND ${THIS_TEST_SCRIPT_LIST} "${this_script} time ${THIS_TEST_PREFIX_ARGS} ${CMAKE_BINARY_DIR}/env-shell.sh ${script}\n")
     get_filename_component(script_basename ${script} NAME)
-    add_test(${PROJECT_NAME}::${script_basename}
-             ${script})
+    add_test(NAME ${PROJECT_NAME}::${script_basename}
+             WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
+             COMMAND ${script})
 
   endforeach(script ${${PROJECT_NAME}_SCRIPTS_ALPHABETICAL})
 
