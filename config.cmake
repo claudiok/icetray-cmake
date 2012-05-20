@@ -103,14 +103,6 @@ else()
   set(WARNING_FLAGS "-Wall -Wno-non-virtual-dtor")
 endif()
 
-#
-# temporary switch for testing fast omkey hash
-#
-option(USE_FAST_OMKEY_MAP "Use the experimental fast OMKey map" OFF)
-if (USE_FAST_OMKEY_MAP)
-  add_definitions(-DI3_USE_FAST_OMKEY_MAP)
-endif (USE_FAST_OMKEY_MAP)
-
 option(USE_PYTHON_LOGGING "Log to python, not to log4cplus" OFF)
 if (USE_PYTHON_LOGGING)
   add_definitions(-DI3_PYTHON_LOGGING)
@@ -300,6 +292,9 @@ colormsg("")
 #
 #  gold
 #
+
+# -fuse-ld seems to have gone away between lucid and oneiric
+if(${GCC_NUMERIC_VERSION} LESS 40500)
 find_program(GOLD_PROGRAM gold)
 if(NOT APPLE)
   if(GOLD_PROGRAM)
@@ -323,6 +318,7 @@ else(NOT APPLE)
     message(STATUS "USE_GOLD enabled, but gold does not support linking on Apple: disabling.")
   endif(USE_GOLD)
 endif(NOT APPLE)
+endif()
 
 #
 #  distcc
@@ -356,6 +352,7 @@ if(CCACHE_PROGRAM)
   if(USE_CCACHE)
     if(CCACHE_PROGRAM)
       set(CMAKE_CXX_COMPILE_OBJECT "${CCACHE_PROGRAM} ${CMAKE_CXX_COMPILE_OBJECT}")
+      set(CMAKE_C_COMPILE_OBJECT "${CCACHE_PROGRAM} ${CMAKE_C_COMPILE_OBJECT}")
       execute_process(COMMAND ${CCACHE_PROGRAM} -s
 	OUTPUT_FILE ${NOTES_DIR}/ccache-s.txt
 	OUTPUT_VARIABLE NOWHERE)
@@ -439,6 +436,31 @@ if(NOT METAPROJECT_CONFIGURED)
   set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O${RELOPTLEVEL} -Wno-unused-variable -g -DNDEBUG -DI3_OPTIMIZE")
   set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO}" CACHE STRING
     "Flags used by compiler during release builds" FORCE)
+
+## coverage flags
+  SET( CMAKE_CXX_FLAGS_COVERAGE "-pipe -g -O0 -fprofile-arcs -ftest-coverage" CACHE STRING
+    "Flags used by the C++ compiler during coverage builds."
+    FORCE )
+  SET( CMAKE_C_FLAGS_COVERAGE "-pipe -g -O0 -fprofile-arcs -ftest-coverage" CACHE STRING
+    "Flags used by the C compiler during coverage builds."
+    FORCE )
+  SET( CMAKE_EXE_LINKER_FLAGS_COVERAGE
+    "-pipe -g -O0 -fprofile-arcs -ftest-coverage" CACHE STRING
+    "Flags used for linking binaries during coverage builds."
+    FORCE )
+  SET( CMAKE_SHARED_LINKER_FLAGS_COVERAGE
+    "-pipe -g -O0 -fprofile-arcs -ftest-coverage" CACHE STRING
+    "Flags used by the shared libraries linker during coverage builds."
+    FORCE )
+  MARK_AS_ADVANCED(
+    CMAKE_CXX_FLAGS_COVERAGE
+    CMAKE_C_FLAGS_COVERAGE
+    CMAKE_EXE_LINKER_FLAGS_COVERAGE
+    CMAKE_SHARED_LINKER_FLAGS_COVERAGE )
+  # Update the documentation string of CMAKE_BUILD_TYPE for GUIs
+  SET( CMAKE_BUILD_TYPE "${CMAKE_BUILD_TYPE}" CACHE STRING
+    "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel Coverage."
+    FORCE )
 
   #
   # stop binutils stupidity
