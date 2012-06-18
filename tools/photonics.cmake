@@ -17,10 +17,11 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>
 #  
+
 TOOLDEF (photonics
-  include/photonics-1.70
+  include/photonics-${PHOTONICS_VERSION}
   photonics.h
-  lib/photonics-1.70
+  lib/photonics-${PHOTONICS_VERSION}
   NONE
   photoamasim level2amasim photonics photonicsCPPio
   )

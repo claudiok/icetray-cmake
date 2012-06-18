@@ -70,6 +70,7 @@ set(I3_BUILD ${CMAKE_BINARY_DIR})
 # 
 
 include(${CMAKE_SOURCE_DIR}/CMakeLists.optional.txt OPTIONAL)
+include(${CMAKE_SOURCE_DIR}/tool_config.cmake)
 
 set(CMAKE_MODULE_PATH
   ${EXTRA_CMAKE_MODULE_PATH} 
