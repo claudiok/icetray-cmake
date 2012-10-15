@@ -43,11 +43,11 @@ endif()
 #  These guys are in subdirectory 'tools'
 #
 set(ALL_TOOLS pthread root boost python hippodraw
-    rdmc expat gsl sprng sla libarchive blas lapack
+    rdmc expat blas lapack gsl sprng sla libarchive
     mysql bdb log4cplus mpi photonics suitesparse
-    ZThread omniORB fox jni ncurses
+    ZThread omniORB jni ncurses healpix
     cdk qt4 cfitsio hdf5 minuit2 clhep geant4 zlib
-    opencl gmp log4cpp xml2 genie
+    opencl gmp log4cpp xml2 genie zmq
     ${I3_EXTRA_TOOLS}   # add the extra tools and dedupe
     )
 list(REMOVE_DUPLICATES ALL_TOOLS)

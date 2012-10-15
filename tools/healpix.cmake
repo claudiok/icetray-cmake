@@ -18,29 +18,17 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>
 #  
 
-IF(NOT GSL_VERSION)
-	if(IS_DIRECTORY ${I3_PORTS}/include/gsl-1.14)
-		set(GSL_VERSION "1.14")
-	else(IS_DIRECTORY ${I3_PORTS}/include/gsl-1.14)
-		set(GSL_VERSION "1.8")
-	endif(IS_DIRECTORY ${I3_PORTS}/include/gsl-1.14)
-ENDIF(NOT GSL_VERSION)
+IF(NOT HEALPIX_VERSION)
+        if(IS_DIRECTORY ${I3_PORTS}/include/Healpix-2.20a )
+                set(HEALPIX_VERSION "2.20a")
+        endif(IS_DIRECTORY ${I3_PORTS}/include/Healpix-2.20a )
+ENDIF(NOT HEALPIX_VERSION)
 
-if(BLAS_FOUND)
-tooldef(gsl 
-    include/gsl-${GSL_VERSION}
-    gsl/gsl_rng.h
-    lib/gsl-${GSL_VERSION}
+tooldef(healpix-cxx 
+    include/
+    healpix-cxx/healpix_map.h
+    lib/
     NONE
-    gsl
+    healpix_cxx 
+    cxxsupport
     )
-list(APPEND GSL_LIBRARIES ${BLAS_LIBRARIES})
-else(BLAS_FOUND)
-tooldef(gsl 
-    include/gsl-${GSL_VERSION}
-    gsl/gsl_rng.h
-    lib/gsl-${GSL_VERSION}
-    NONE
-    gsl gslcblas
-    )
-endif(BLAS_FOUND)
