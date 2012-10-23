@@ -17,20 +17,18 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>
 #  
-TOOLDEF (photonics
-  include/photonics-1.70
-  photonics.h
-  lib/photonics-1.70
-  NONE
-  photoamasim level2amasim photonics photonicsCPPio
-  )
 
-if (NOT PHOTONICS_FOUND)
-  TOOLDEF (photonics
-    include/photonics-1.67
-    photonics.h
-    lib/photonics-1.67
+IF(NOT HEALPIX_VERSION)
+        if(IS_DIRECTORY ${I3_PORTS}/include/Healpix-2.20a )
+                set(HEALPIX_VERSION "2.20a")
+        endif(IS_DIRECTORY ${I3_PORTS}/include/Healpix-2.20a )
+ENDIF(NOT HEALPIX_VERSION)
+
+tooldef(healpix-cxx 
+    include/
+    healpix-cxx/healpix_map.h
+    lib/
     NONE
-    photoamasim level2amasim photonics photonicsCPPio
+    healpix_cxx 
+    cxxsupport
     )
-endif (NOT PHOTONICS_FOUND)

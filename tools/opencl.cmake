@@ -7,11 +7,15 @@
 #  OPENCL_INCLUDE_DIRS  - the OpenCL include directory
 #  OPENCL_LIBRARIES    - link these to use OpenCL
 
-IF (APPLE)
-    # we don't use the tooldef() macro, so we have to fudge pretty-printing
-    colormsg("")
-    colormsg(HICYAN "OpenCL")
+# we don't use the tooldef() macro, so we have to fudge pretty-printing
+colormsg("")
+colormsg(HICYAN "OpenCL")
     
+IF (APPLE)
+  if(CMAKE_SYSTEM_VERSION VERSION_LESS "11.0.0")
+    FOUND_NOT_OK("The OpenCL provided by this version of OS X is too old. Disabling.")
+  else(CMAKE_SYSTEM_VERSION VERSION_LESS "11.0.0")
+
     FOUND_OK("Using the OpenCL Framework because we're on Apple")
 
     # Search for the framework on Apple systems.
@@ -48,10 +52,11 @@ IF (APPLE)
 
     endif(OpenCL_FRAMEWORKS)
 
+  endif(CMAKE_SYSTEM_VERSION VERSION_LESS "11.0.0")
 ELSE (APPLE)
     # Unix style platforms
     FIND_LIBRARY(OPENCL_LIBRARIES OpenCL
-      ENV LD_LIBRARY_PATH
+      HINTS ENV LD_LIBRARY_PATH
     )
 
     IF (OPENCL_LIBRARIES)
@@ -65,8 +70,8 @@ ELSE (APPLE)
         # The AMD SDK currently does not place its headers
         # in /usr/include, therefore also search relative
         # to the library
-        FIND_PATH(OPENCL_INCLUDE_DIRS CL/cl.h PATHS ${_OPENCL_INC_CAND})
-        FIND_PATH(_OPENCL_CPP_INCLUDE_DIRS CL/cl.hpp PATHS ${_OPENCL_INC_CAND})
+        FIND_PATH(OPENCL_INCLUDE_DIRS CL/cl.h PATHS ${_OPENCL_INC_CAND} "/usr/local/cuda/include")
+        FIND_PATH(_OPENCL_CPP_INCLUDE_DIRS CL/cl.hpp PATHS ${_OPENCL_INC_CAND} "/usr/local/cuda/include")
 
         tooldef(opencl
           ${OPENCL_INCLUDE_DIRS}

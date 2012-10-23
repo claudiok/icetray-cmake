@@ -103,7 +103,7 @@ using std::isnan;
 
 #define BOOST_NO_WREGEX
 
-#ifdef I3_OPTIMIZE
+#ifdef NDEBUG
 #define BOOST_DISABLE_ASSERTS
 #endif
 

@@ -1,8 +1,7 @@
 #
 #  $Id$
 #  
-#  Copyright (C) 2007   Troy D. Straszheim  <troy@icecube.umd.edu>
-#  and the IceCube Collaboration <http://www.icecube.wisc.edu>
+#  Copyright (C) 2012 the IceCube Collaboration <http://www.icecube.wisc.edu>
 #  
 #  This file is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -17,11 +16,11 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>
 #  
-TOOLDEF (fox
-  include/fox-1.6.6/fox-1.6  
-  fx.h
-  lib/fox-1.6.6
-  bin/fox-1.6.6
-  FOX-1.6
+TOOLDEF (zmq
+  include/zmq-2.1.11
+  zmq.hpp 
+  lib/zmq-2.1.11
+  NONE
+  zmq
   )
 

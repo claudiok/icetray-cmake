@@ -31,6 +31,12 @@ endif("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}")
 
 if(COMMAND cmake_policy)
   cmake_policy(SET CMP0003 NEW)
+  if(CMAKE_MINOR_VERSION GREATER 7)
+    cmake_policy(SET CMP0012 NEW)
+    if(CMAKE_VERSION VERSION_GREATER "2.8.3")
+      cmake_policy(SET CMP0017 NEW)
+    endif(CMAKE_VERSION VERSION_GREATER "2.8.3")
+  endif(CMAKE_MINOR_VERSION GREATER 7)
 endif(COMMAND cmake_policy)
 
 #
@@ -83,6 +89,7 @@ include(config)
 include(tools)
 include(project)
 
+if(NOT CMAKE_GENERATOR STREQUAL "Ninja")
 add_custom_target(i3test
   COMMAND ${CMAKE_BINARY_DIR}/env-shell.sh ${EXECUTABLE_OUTPUT_PATH}/runtests.py
   COMMENT "
@@ -91,6 +98,12 @@ add_custom_target(i3test
 >>>  Run without arguments to see help/options.
 >>>
 ")
+else(NOT CMAKE_GENERATOR STREQUAL "Ninja")
+add_custom_target(test
+  COMMAND ${CMAKE_BINARY_DIR}/env-shell.sh ${EXECUTABLE_OUTPUT_PATH}/runtests.py
+  COMMENT "Running tests via the utility 'runtests.py' in your $I3_BUILD/bin/ directory.")
+endif(NOT CMAKE_GENERATOR STREQUAL "Ninja")
+
 add_custom_target(test-bins)
 add_dependencies(i3test test-bins)
 
@@ -115,8 +128,9 @@ add_dependencies(docs doxygen inspect html)
 # Tarball target
 #
 find_program(MD5SUM_PROGRAM md5sum)
+find_program(MD5SUM_PROGRAM md5)
 if(MD5SUM_PROGRAM)
-  set(MD5SUM_TARBALL_COMMAND md5sum ${CMAKE_INSTALL_PREFIX}.tar.gz > ${CMAKE_INSTALL_PREFIX}.md5sum)
+  set(MD5SUM_TARBALL_COMMAND ${MD5SUM_PROGRAM} ${CMAKE_INSTALL_PREFIX}.tar.gz > ${CMAKE_INSTALL_PREFIX}.md5sum)
 else(MD5SUM_PROGRAM)
   set(MD5SUM_TARBALL_COMMAND /bin/echo Skipping md5sum, as md5sum command was not found.)
 endif(MD5SUM_PROGRAM)

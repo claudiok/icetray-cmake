@@ -87,21 +87,33 @@ numeric_version(${GCC_VERSION} "gcc")
 set(GCC_NUMERIC_VERSION ${GCC_NUMERIC_VERSION} CACHE INTEGER "Numeric gcc version" FORCE)
 
 #
+#  COMPILER_ID_TAG
+#
+execute_process(COMMAND ${CMAKE_CXX_COMPILER} -v ERROR_VARIABLE COMPILER_ID_TAG)
+set(COMPILER_ID_TAG "REGEXPS IN CMAKE SUCK\n${COMPILER_ID_TAG}")
+STRING(REGEX REPLACE ".*[ 
+\\t]([a-zA-Z]+) version ([^ ]+).*" "\\1-\\2" COMPILER_ID_TAG ${COMPILER_ID_TAG})
+
+#
 # Unfortunately cmake doesn't do this on its own
 #
 if(CMAKE_CXX_COMPILER_ID MATCHES "Intel")
   set(CMAKE_COMPILER_IS_INTEL TRUE)
+  set(CXX_WARNING_FLAGS "-w1 -Wno-non-virtual-dtor")
 elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   set(CMAKE_COMPILER_IS_CLANG TRUE)
+  set(CXX_WARNING_FLAGS "-Qunused-arguments -Wall -Wno-non-virtual-dtor -Wno-mismatched-tags -Wno-char-subscripts -Wno-unused -Wunneeded-internal-declaration -Wno-parentheses-equality")
+else()
+  set(CXX_WARNING_FLAGS "-Wall -Wno-non-virtual-dtor")
 endif(CMAKE_CXX_COMPILER_ID MATCHES "Intel")
 
-if(CMAKE_COMPILER_IS_INTEL)
-  set(WARNING_FLAGS "-w1 -Wno-non-virtual-dtor")
-elseif(CMAKE_COMPILER_IS_CLANG)
-  set(WARNING_FLAGS "-Wall -Wno-non-virtual-dtor -Wno-mismatched-tags -Wno-char-subscripts -Wno-unused -Wunneeded-internal-declaration -Wno-parantheses-equality")
+if(CMAKE_C_COMPILER_ID MATCHES "Intel")
+  set(C_WARNING_FLAGS "-w1")
+elseif(CMAKE_C_COMPILER_ID MATCHES "Clang")
+  set(C_WARNING_FLAGS "-Qunused-arguments -Wall -Wno-char-subscripts -Wno-unused -Wunneeded-internal-declaration -Wno-parentheses-equality")
 else()
-  set(WARNING_FLAGS "-Wall -Wno-non-virtual-dtor")
-endif()
+  set(C_WARNING_FLAGS "-Wall")
+endif(CMAKE_C_COMPILER_ID MATCHES "Intel")
 
 option(USE_PYTHON_LOGGING "Log to python, not to log4cplus" OFF)
 if (USE_PYTHON_LOGGING)
@@ -144,10 +156,10 @@ boost_report_value(ARCH)
 #
 # Assemble BUILDNAME
 #
-set(BUILDNAME "${OSTYPE}-${OSVERSION}/${ARCH}/gcc-${GCC_VERSION}" CACHE INTERNAL "buildname")
+set(BUILDNAME "${OSTYPE}-${OSVERSION}/${ARCH}/${COMPILER_ID_TAG}" CACHE INTERNAL "buildname")
 boost_report_value(BUILDNAME)
 
-set(TOOLSET "gcc-${GCC_VERSION}/${ARCH}/${CMAKE_BUILD_TYPE}" CACHE INTERNAL "toolset")
+set(TOOLSET "${COMPILER_ID_TAG}/${ARCH}/${CMAKE_BUILD_TYPE}" CACHE INTERNAL "toolset")
 
 #
 #  Get HOSTNAME
@@ -249,9 +261,9 @@ endif(NOT HAVE_META_PROJECT)
 #           what a hack.
 if (CMAKE_INSTALL_PREFIX STREQUAL "/usr/local")
   if (NOT "${META_PROJECT}" STREQUAL "Unknown")
-    set(CMAKE_INSTALL_PREFIX ${META_PROJECT}.r${SVN_REVISION}.${OSTYPE}-${ARCH}.gcc-${GCC_VERSION} CACHE STRING "Install prefix.  Also name of tarball." FORCE)
+    set(CMAKE_INSTALL_PREFIX ${META_PROJECT}.r${SVN_REVISION}.${OSTYPE}-${ARCH}.${COMPILER_ID_TAG} CACHE STRING "Install prefix.  Also name of tarball." FORCE)
   else (NOT "${META_PROJECT}" STREQUAL "Unknown")
-    set(CMAKE_INSTALL_PREFIX ${OSTYPE}-${ARCH}.gcc-${GCC_VERSION} CACHE STRING "Install prefix.  Also name of tarball." FORCE)
+    set(CMAKE_INSTALL_PREFIX ${OSTYPE}-${ARCH}.${COMPILER_ID_TAG} CACHE STRING "Install prefix.  Also name of tarball." FORCE)
   endif (NOT "${META_PROJECT}" STREQUAL "Unknown")
 endif(CMAKE_INSTALL_PREFIX STREQUAL "/usr/local")
 
@@ -383,10 +395,10 @@ endif(USE_GFILT)
 #
 #  For now, on gcc 4.3.2, add the -Wno-deprecated flag
 #
-if (GCC_NUMERIC_VERSION GREATER 40299)
+if (GCC_NUMERIC_VERSION GREATER 40299 OR CMAKE_COMPILER_IS_CLANG)
   set(CXX_WARNING_SUPRESSION_FLAGS "-Wno-deprecated -Wno-parentheses"
     CACHE STRING "Warning supression flags for this compiler")
-endif (GCC_NUMERIC_VERSION GREATER 40299)
+endif (GCC_NUMERIC_VERSION GREATER 40299 OR CMAKE_COMPILER_IS_CLANG)
 
 #
 #  Detect certain old platforms and reduce optimization levels accordingly
@@ -417,48 +429,48 @@ if(NOT METAPROJECT_CONFIGURED)
   #  cmake -DCMAKE_BUILD_TYPE:STRING=Debug, we need to use that value
   #
   if (NOT CMAKE_BUILD_TYPE)
-    set(CMAKE_BUILD_TYPE "Debug" CACHE STRING "Choose the type of build, options are: None(CMAKE_CXX_FLAGS or CMAKE_C_FLAGS used) Debug Release RelWithDebInfo MinSizeRel" FORCE)
+    set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Choose the type of build, options are: None(CMAKE_CXX_FLAGS or CMAKE_C_FLAGS used) Debug Release RelWithDebInfo MinSizeRel" FORCE)
   endif (NOT CMAKE_BUILD_TYPE)
 
-  set(CMAKE_CXX_FLAGS "${WARNING_FLAGS} ${CMAKE_CXX_FLAGS} ${CXX_WARNING_SUPRESSION_FLAGS}")
+  set(CMAKE_CXX_FLAGS "${CXX_WARNING_FLAGS} ${CMAKE_CXX_FLAGS} ${CXX_WARNING_SUPRESSION_FLAGS}")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}" CACHE STRING
     "Flags used by the compiler during all build types" FORCE)
 
-  set(CMAKE_C_FLAGS "${WARNING_FLAGS} ${CMAKE_C_FLAGS} ${CXX_WARNING_SUPRESSION_FLAGS}")
+  set(CMAKE_C_FLAGS "${C_WARNING_FLAGS} ${CMAKE_C_FLAGS}")
   string(REPLACE "-Wno-non-virtual-dtor" "" CMAKE_C_FLAGS ${CMAKE_C_FLAGS})
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}" CACHE STRING
     "Flags used by the compiler during all build types" FORCE)
 
-  set(CMAKE_CXX_FLAGS_RELEASE "-O${RELOPTLEVEL} -Wno-unused-variable -DNDEBUG -DI3_OPTIMIZE")
+  set(CMAKE_CXX_FLAGS_RELEASE "-O${RELOPTLEVEL} -Wno-unused-variable -DNDEBUG")
   set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE}" CACHE STRING
     "Flags used by compiler during release builds" FORCE)
 
-  set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O${RELOPTLEVEL} -Wno-unused-variable -g -DNDEBUG -DI3_OPTIMIZE")
+  set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O${RELOPTLEVEL} -Wno-unused-variable -g -DNDEBUG")
   set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO}" CACHE STRING
     "Flags used by compiler during release builds" FORCE)
 
 ## coverage flags
-  SET( CMAKE_CXX_FLAGS_COVERAGE "-pipe -g -O0 -fprofile-arcs -ftest-coverage" CACHE STRING
+  set(CMAKE_CXX_FLAGS_COVERAGE "-pipe -g -O0 -fprofile-arcs -ftest-coverage" CACHE STRING
     "Flags used by the C++ compiler during coverage builds."
     FORCE )
-  SET( CMAKE_C_FLAGS_COVERAGE "-pipe -g -O0 -fprofile-arcs -ftest-coverage" CACHE STRING
+  set(CMAKE_C_FLAGS_COVERAGE "-pipe -g -O0 -fprofile-arcs -ftest-coverage" CACHE STRING
     "Flags used by the C compiler during coverage builds."
     FORCE )
-  SET( CMAKE_EXE_LINKER_FLAGS_COVERAGE
+  set(CMAKE_EXE_LINKER_FLAGS_COVERAGE
     "-pipe -g -O0 -fprofile-arcs -ftest-coverage" CACHE STRING
     "Flags used for linking binaries during coverage builds."
     FORCE )
-  SET( CMAKE_SHARED_LINKER_FLAGS_COVERAGE
+  set(CMAKE_SHARED_LINKER_FLAGS_COVERAGE
     "-pipe -g -O0 -fprofile-arcs -ftest-coverage" CACHE STRING
     "Flags used by the shared libraries linker during coverage builds."
     FORCE )
-  MARK_AS_ADVANCED(
+  mark_as_advanced(
     CMAKE_CXX_FLAGS_COVERAGE
     CMAKE_C_FLAGS_COVERAGE
     CMAKE_EXE_LINKER_FLAGS_COVERAGE
     CMAKE_SHARED_LINKER_FLAGS_COVERAGE )
   # Update the documentation string of CMAKE_BUILD_TYPE for GUIs
-  SET( CMAKE_BUILD_TYPE "${CMAKE_BUILD_TYPE}" CACHE STRING
+  set(CMAKE_BUILD_TYPE "${CMAKE_BUILD_TYPE}" CACHE STRING
     "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel Coverage."
     FORCE )
 
