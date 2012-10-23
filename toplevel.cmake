@@ -99,7 +99,7 @@ add_custom_target(i3test
 >>>
 ")
 else(NOT CMAKE_GENERATOR STREQUAL "Ninja")
-add_custom_target(test
+add_custom_target(i3test
   COMMAND ${CMAKE_BINARY_DIR}/env-shell.sh ${EXECUTABLE_OUTPUT_PATH}/runtests.py
   COMMENT "Running tests via the utility 'runtests.py' in your $I3_BUILD/bin/ directory.")
 endif(NOT CMAKE_GENERATOR STREQUAL "Ninja")
