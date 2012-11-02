@@ -20,6 +20,8 @@
 #
 # rootcint() handles root dictionary generation
 #
+enable_testing()
+
 if(NOT USE_CINT)
   macro(ROOTCINT)
   endmacro(ROOTCINT)
@@ -307,7 +309,7 @@ macro(i3_project PROJECT_NAME)
 
     add_custom_target(${PROJECT_NAME}-doxygen)
 
-    i3_add_testing_targets()
+    #i3_add_testing_targets()
 
     if(IS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/resources)
       install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/resources/
@@ -511,7 +513,7 @@ macro(i3_test_executable THIS_EXECUTABLE_NAME)
       execute_process(COMMAND grep -l TEST_GROUP ${file} OUTPUT_VARIABLE testable_file)
       string(REGEX REPLACE "[ \n]+" "" testable_file "${testable_file}")
       get_filename_component(testable_file "/${testable_file}" NAME)
-      execute_process(COMMAND perl -ne "m{TEST\\s*\\((\\w+)\\)}s && print \"$1\;\"" ${file}
+      execute_process(COMMAND perl -ne "m{^\\s*TEST\\s*\\((\\w+)\\)}s && print \"$1\;\"" ${file}
 	OUTPUT_VARIABLE UNITTESTS)
 
       if(NOT "${testable_file}" STREQUAL "")
@@ -632,7 +634,8 @@ macro(i3_test_scripts)
       ${PYTHON_EXECUTABLE} ${NATIVE_TEST_DRIVER} ${CMAKE_CURRENT_BINARY_DIR} run ${TESTNAME}
       )
 
-    file(APPEND ${THIS_TEST_SCRIPT_LIST} "${this_script} time ${THIS_TEST_PREFIX_ARGS} ${CMAKE_BINARY_DIR}/env-shell.sh ${script}\n")
+    file(APPEND ${THIS_TEST_SCRIPT_LIST} "${this_script} time ${THIS_TEST_PREFIX_ARGS} ${CMAKE_BINARY_DIR}/env-shell.sh ${script}\n") 
+   add_test(NAME "${PROJECT_NAME}//${this_script}" COMMAND ${CMAKE_BINARY_DIR}/env-shell.sh ${script})
     get_filename_component(script_basename ${script} NAME)
     add_test(NAME ${PROJECT_NAME}::${script_basename}
              WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"

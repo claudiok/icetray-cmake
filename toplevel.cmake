@@ -165,7 +165,7 @@ add_dependencies(tarball tarball-finish)
 
 # this is outside because it contains the test macros, which 
 # might be noops
-include(testing)
+#include(testing)
 
 # this is what's left of BuildSlave.cmake. don't change it! -nega
 option(BUILD_SLAVE "Be a build slave, report build/testing" OFF)
@@ -231,7 +231,7 @@ else()
   set(SUBDIRS ${I3_PROJECTS})
 endif()
 
-i3_add_testing_targets()
+#i3_add_testing_targets()
 
 colormsg("")
 colormsg(_HIBLUE_ "Configuring projects:")
