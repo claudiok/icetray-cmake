@@ -26,7 +26,7 @@ namespace __gnu_cxx
 }
 
 //No template aliases in C++03, so do this the risky way:
-#define hash_map __gnu_cxx::hash_map
+using __gnu_cxx::hash_map;
 using __gnu_cxx::hash;
 
 #else
