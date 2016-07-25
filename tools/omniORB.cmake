@@ -18,10 +18,10 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>
 #  
 TOOLDEF (omniORB
-  include/omniorb-4.0.7  
+  include/omniorb-4.2.1  
   omniconfig.h
-  lib/omniorb-4.0.7
-  bin/omniorb-4.0.7
+  lib/omniorb-4.2.1
+  bin/omniorb-4.2.1
   omnithread omniORB4 COS4 COSDynamic4 omniCodeSets4 omniDynamic4
   )
 
