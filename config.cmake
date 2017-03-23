@@ -335,38 +335,6 @@ set(USE_IWYU OFF)
 endif()
 
 #
-# Get compiler information
-#
-
-#
-#  GCC_VERSION and GCC_NUMERIC_VERSION is e.g. 40302 (for 4.3.2)
-#
-# execute_process(COMMAND ${CMAKE_CXX_COMPILER} -dumpversion
-#   COMMAND tr -d \\n
-#   OUTPUT_VARIABLE GCC_VERSION)
-# numeric_version(${GCC_VERSION} "gcc")
-# set(GCC_NUMERIC_VERSION ${GCC_NUMERIC_VERSION} CACHE INTEGER "Numeric gcc version")
-
-
-#
-# Ban old gcc versions
-#
-if(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
-  numeric_version(${CMAKE_CXX_COMPILER_VERSION} "gcc")
-  if(GCC_NUMERIC_VERSION LESS 40801)
-    message("***")
-    message("*** You're using a gcc version less than 4.8.1. This is no longer supported.")
-    message("*** Upgrade your complier, or set the CC and CXX environment variables appropriately.")
-    if(HOSTNAME MATCHES "cobalt")
-      message("***")
-      message("*** cobalt users can use py2_v2 and \"scl enable devtoolset-2 bash\" and rebuilding")
-      message("*** If you need further help, ask in \#software on Slack")
-    endif()
-    deprecation_warning(20160905 "Unsupported gcc version.")
-  endif()
-endif()
-
-#
 # Ban old clang versions. This will probably break for non-Apple clang
 # on Apple. :(
 #
@@ -466,15 +434,9 @@ if (CMAKE_COMPILER_IS_CLANG)
 endif (CMAKE_COMPILER_IS_CLANG)
 
 #
-# Set the compiler flag for C++14
+# Force the standard to be 98
 #
-if(CMAKE_COMPILER_IS_CLANG AND
-    (CLANG_NUMERIC_VERSION LESS "30500"))
-  set(CXX14_FLAG "-std=c++1y")
-else()
-  set(CXX14_FLAG "-std=c++14")
-endif()
-set(CXX14_FLAG "-std=c++11")
+set(CPP_STANDARD_FLAG "-std=c++98")
 
 #
 # libraries everybody links to
@@ -531,7 +493,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE BOOL "Export a JSON 'database' of com
 #
 # set flags common to all build types
 #
-set(CMAKE_CXX_FLAGS "-pipe ${CXX14_FLAG} ${CXX_WARNING_FLAGS} ${CMAKE_CXX_FLAGS} ${CXX_WARNING_SUPPRESSION_FLAGS}")
+set(CMAKE_CXX_FLAGS "-pipe ${CPP_STANDARD_FLAG} ${CXX_WARNING_FLAGS} ${CMAKE_CXX_FLAGS} ${CXX_WARNING_SUPPRESSION_FLAGS}")
 string(REGEX REPLACE "[ ]+" " " CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}" CACHE STRING
   "Flags used by the compiler during all build types")
