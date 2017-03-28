@@ -434,11 +434,6 @@ if (CMAKE_COMPILER_IS_CLANG)
 endif (CMAKE_COMPILER_IS_CLANG)
 
 #
-# Force the standard to be 98
-#
-set(CPP_STANDARD_FLAG "-std=c++98")
-
-#
 # libraries everybody links to
 #
 if (${CMAKE_SYSTEM_NAME} STREQUAL "FreeBSD")
@@ -493,7 +488,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE BOOL "Export a JSON 'database' of com
 #
 # set flags common to all build types
 #
-set(CMAKE_CXX_FLAGS "-pipe ${CPP_STANDARD_FLAG} ${CXX_WARNING_FLAGS} ${CMAKE_CXX_FLAGS} ${CXX_WARNING_SUPPRESSION_FLAGS}")
+set(CMAKE_CXX_FLAGS "-pipe ${CXX_WARNING_FLAGS} ${CMAKE_CXX_FLAGS} ${CXX_WARNING_SUPPRESSION_FLAGS}")
 string(REGEX REPLACE "[ ]+" " " CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}" CACHE STRING
   "Flags used by the compiler during all build types")
